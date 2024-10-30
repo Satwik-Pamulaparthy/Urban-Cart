@@ -1,0 +1,161 @@
+---
+import { app } from '../firebase/server'
+import { getAuth } from 'firebase-admin/auth'
+import Layout from '../layouts/Layout.astro'
+import '../styles/App.css'
+import type { APIRoute } from 'astro'
+
+
+const auth = getAuth(app)
+const sessionCookie = Astro.cookies.get('session')?.value;
+
+if (sessionCookie) {
+    try {
+        
+        const decodedCookie = await auth.verifySessionCookie(sessionCookie);
+        
+        if (decodedCookie) return Astro.redirect('/dashboard');
+    } catch (error) {
+        console.log('Session verification failed:', error);
+        
+        Astro.cookies.delete('session', { path: '/' });
+    }
+}
+---
+
+<Layout title="Sign in">
+    <body>
+        <div>
+            <form class="login-form">
+                <header>Login</header>
+                <label for="emailId">Email</label>
+                <input type="text" id="emailId" name="email" required />
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required />
+                <button id="loginButton" type="submit"> Login </button>
+                <div>
+                    <p id="msg-for-failure"></p>
+                </div>
+                <div class="container mt-3 new-user-container">
+                    <a href="/register">Create Account</a>
+                </div>
+            </form>
+        </div>
+    </body>
+</Layout>
+
+<script>
+    import {
+        getAuth,
+        inMemoryPersistence,
+        signInWithEmailAndPassword,
+        connectAuthEmulator,
+    } from 'firebase/auth'
+    import { app } from '../firebase/client'
+
+    const auth = getAuth(app)
+    if (import.meta.env.PUBLIC_EMULATOR === '1') {
+        console.log('Client connecting to Emulator!')
+        connectAuthEmulator(auth, 'http://127.0.0.1:9099')
+    }
+    
+    auth.setPersistence(inMemoryPersistence)
+
+    const form = document.querySelector('form') as HTMLFormElement
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault()
+        const formData = new FormData(form)
+        const email = formData.get('email')?.toString()
+        const password = formData.get('password')?.toString()
+
+        console.log(email)
+        if (!email || !password) {
+            return
+        }
+        try {
+            const userCredential = await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            )
+            const idToken = await userCredential.user.getIdToken()
+            console.log('ID TOKEN', idToken)
+            const response = await fetch('/api/auth/signin', {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${idToken}`,
+                },
+            })
+
+            if (response.redirected) {
+                window.location.assign(response.url)
+            } else {
+                const errorMessage = document.getElementById('msg-for-failure')
+                errorMessage!.innerText =
+                    'Login failed. Please check Server Log'
+            }
+        } catch (error) {
+            const errorMessage = document.getElementById('msg-for-failure')
+            errorMessage!.innerText = 'Login failed. Please check Server Log'
+        }
+    })
+</script>
+
+<style>
+    
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        margin: auto;
+    }
+
+    /* Style the input fields */
+    .login-form input {
+        width: 100%;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+
+    /* Style the submit button */
+    .login-form button {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #0f0f0f;
+        color: #ffffff;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 1rem;
+    }
+
+    .login-form button:disabled {
+        background-color: #ffffff;
+    }
+
+    .login-form button:hover:not(:disabled) {
+        background-color: rgb(20, 219, 20);
+        transition: background-color 0.3s ease;
+    }
+
+    .login-form header {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .login-form p {
+        color: red;
+    }
+</style>

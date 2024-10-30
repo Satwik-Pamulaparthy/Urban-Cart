@@ -1,0 +1,34 @@
+---
+import { app } from '../firebase/server'
+import { getAuth } from 'firebase-admin/auth'
+import Layout from '../layouts/Layout.astro'
+import App from '../components/App'
+const auth = getAuth(app)
+
+const sessionCookie = Astro.cookies.get('session')?.value;
+
+if (!sessionCookie) {
+    return Astro.redirect('/signin');
+}
+
+let decodedCookie;
+
+try {
+    decodedCookie = await auth.verifySessionCookie(sessionCookie);
+} catch (error) {
+    console.log('Session verification failed:', error);
+    return Astro.redirect('/signin');
+}
+
+
+const user = await auth.getUser(decodedCookie.uid)
+
+
+if (!user) {
+    return Astro.redirect('/signin');
+}
+---
+
+<Layout title="Urban-Cart">
+    <App client:only="react" />
+</Layout>

@@ -1,0 +1,23 @@
+---
+import { getAuth } from 'firebase-admin/auth'
+import { app } from '../firebase/server'
+
+const auth = getAuth(app)
+
+const sessionCookie = Astro.cookies.get('session')?.value
+
+if (sessionCookie) {
+    try {
+        
+        const decodedCookie = await auth.verifySessionCookie(sessionCookie)
+        
+        if (decodedCookie) return Astro.redirect('/dashboard')
+    } catch (error) {
+        console.log('Session verification failed:', error)
+        
+        Astro.cookies.delete('session', { path: '/' })
+    }
+} else {
+    return Astro.redirect('/signin')
+}
+---
