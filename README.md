@@ -2,7 +2,7 @@
 
 | Title                                  | Release                              | Due                               |
 | -------------------------------------- | ------------------------------------ | --------------------------------- |
-| Homework 3 - Authentication/Serverless | Wednesday, October 16, 2024 08:00 AM | Friday, November 1, 2024 02:00 PM |
+|  Authentication/Serverless | Wednesday, October 16, 2024 08:00 AM | Friday, November 1, 2024 02:00 PM |
 
 ## Quickstart
 
