@@ -89,15 +89,4 @@ The tests for the homework are executed using the emulators. However, if you wan
 1. Go to your project console, select Authentication > Sign-in method and enable `Email/Password`
 1. Go to your project console, select Cloud Firestore > Create database > Next > Start in test mode
 
-Note that this is not required for the homework.
 
-## Points
-
-| Task                               | Points |
-| ---------------------------------- | ------ |
-| App Functionality                  | 93     |
-| CI Tests (Lint, Format, Typecheck) | 9      |
-
-## Due date
-
-This assignment is due on Friday, November 1, 2024 2:00 PM. You are highly encouraged to get started early.
