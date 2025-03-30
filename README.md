@@ -1,9 +1,4 @@
-# Homework 3 - Authentication/Serverless
-
-| Title                                  | Release                              | Due                               |
-| -------------------------------------- | ------------------------------------ | --------------------------------- |
-|  Authentication/Serverless | Wednesday, October 16, 2024 08:00 AM | Friday, November 1, 2024 02:00 PM |
-
+#**Urban Cart**
 ## Quickstart
 
 Create a new **private** repository under your own GitHub account
